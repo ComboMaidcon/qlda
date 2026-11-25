@@ -1,13 +1,32 @@
+/* Nền tảng: màu, chữ, khoảng cách. Mọi khoảng cách là bội của 4px. */
 :root {
+  /* Thang trung tính (xám ấm rất nhẹ). Bề mặt giữ trung tính để nội dung mang màu. */
   --bg: #f4f4f2;
   --panel: #ffffff;
-  --line: #d6d6d1;
-  --text: #1b1b1b;
-  --muted: #6b6b66;
-  --accent: #1f3a5f;
-  --danger: #a12626;
+  --surface-2: #eeeeeb;
+  --line: rgba(28, 28, 26, 0.1);
+  --line-strong: rgba(28, 28, 26, 0.22);
+  --text: #1c1c1b;
+  --text-2: #4f4f4a;
+  --muted: #6b6b64;
+  --bar: #cfcfc9;
+
+  /* Màu nhấn: xanh phấn thợ may. Dùng cho nút chính, mục đang chọn, số liệu cần chú ý. */
+  --accent: #2d5d8c;
+  --accent-hover: #244d76;
+  --accent-soft: #e3ebf3;
+  --on-accent: #ffffff;
+
+  --danger: #a43326;
+  --warn: #8f5600;
   --ok: #2d6a3e;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -16,12 +35,22 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 14px/1.5 var(--font);
+  font: 400 14px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2 { margin: 0; font-weight: 600; }
-h1 { font-size: 18px; }
-h2 { font-size: 14px; }
+h1, h2, h3 { margin: 0; font-weight: 500; }
+h1 { font-size: 20px; line-height: 28px; }
+h2 { font-size: 14px; line-height: 20px; }
+h3 { font-size: 14px; line-height: 20px; margin: 24px 0 8px; }
 
 .muted { color: var(--muted); }
 .danger { color: var(--danger); }
+.warn { color: var(--warn); }
+.ok { color: var(--ok); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; }
+}

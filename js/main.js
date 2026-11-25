@@ -30,4 +30,5 @@ async function start() {
   });
 }
 
+state.ctx = {};
 start();

@@ -1,5 +1,6 @@
-import { db, isDemo, startDemo, stopDemo } from '../lib/supabase.js';
+import { db, isDemo, startDemo, stopDemo, getDemoRole } from '../lib/supabase.js';
 import { DEMO_ACCOUNT } from '../config.js';
+import { DEMO_ROLES } from '../constants.js';
 
 export async function currentUser() {
   if (isDemo()) return { id: 'demo', email: DEMO_ACCOUNT.email };
@@ -7,9 +8,9 @@ export async function currentUser() {
   return data.session?.user ?? null;
 }
 
-export async function signIn(email, password) {
+export async function signIn(email, password, demoRole = 'owner') {
   if (DEMO_ACCOUNT.enabled && email === DEMO_ACCOUNT.email && password === DEMO_ACCOUNT.password) {
-    startDemo();
+    startDemo(demoRole);
     return true;
   }
   const { error } = await db.auth.signInWithPassword({ email, password });
@@ -21,9 +22,18 @@ export async function signOut() {
   else await db.auth.signOut();
 }
 
+export async function changePassword(password) {
+  if (isDemo()) return;   // demo không có tài khoản thật
+  const { error } = await db.auth.updateUser({ password });
+  if (error) throw new Error(error.message);
+}
+
 // Trả về null nếu tài khoản chưa có hồ sơ hoặc đã bị khóa. Ném lỗi nếu truy vấn thất bại.
 export async function loadProfile(user) {
-  if (isDemo()) return { role: 'owner', name: 'Tài khoản demo', zoneId: null };
+  if (isDemo()) {
+    const demo = DEMO_ROLES.find(r => r.key === getDemoRole()) ?? DEMO_ROLES[0];
+    return { role: demo.role, name: `Demo - ${demo.label}`, zoneId: demo.zoneId, employeeId: demo.employeeId ?? null };
+  }
 
   const { data, error } = await db
     .from('profiles')
@@ -48,5 +58,6 @@ export async function loadProfile(user) {
     role: data.role,
     name: data.full_name || employee?.full_name || user.email,
     zoneId: employee?.zone_id ?? null,
+    employeeId: data.employee_id ?? null,
   };
 }

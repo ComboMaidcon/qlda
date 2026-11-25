@@ -1,6 +1,7 @@
 import { signIn } from '../services/auth.js';
 import { esc } from '../lib/format.js';
 import { DEMO_ACCOUNT } from '../config.js';
+import { DEMO_ROLES } from '../constants.js';
 
 export function renderLogin(message, onSuccess) {
   document.getElementById('app').innerHTML = `
@@ -10,14 +11,18 @@ export function renderLogin(message, onSuccess) {
       ${message ? `<p class="danger">${esc(message)}</p>` : ''}
       <label>Email<input name="email" type="email" required></label>
       <label>Mật khẩu<input name="password" type="password" required></label>
+      ${DEMO_ACCOUNT.enabled ? `
+        <label>Vai trò (chỉ áp dụng cho tài khoản thử)
+          <select name="demoRole">${DEMO_ROLES.map(r => `<option value="${r.key}">${r.label}</option>`).join('')}</select>
+        </label>` : ''}
       <button type="submit">Đăng nhập</button>
-      ${DEMO_ACCOUNT.enabled ? `<p class="muted">Tài khoản thử: ${DEMO_ACCOUNT.email} / ${DEMO_ACCOUNT.password}</p>` : ''}
+      ${DEMO_ACCOUNT.enabled ? `<p class="muted">Tài khoản thử (không cần database): ${DEMO_ACCOUNT.email} / ${DEMO_ACCOUNT.password}</p>` : ''}
     </form>`;
 
   document.getElementById('login-form').addEventListener('submit', async event => {
     event.preventDefault();
     const form = new FormData(event.target);
-    const ok = await signIn(form.get('email'), form.get('password'));
+    const ok = await signIn(form.get('email'), form.get('password'), form.get('demoRole') ?? 'owner');
     if (ok) onSuccess();
     else renderLogin('Sai email hoặc mật khẩu', onSuccess);
   });
